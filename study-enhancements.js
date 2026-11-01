@@ -1,4 +1,21 @@
 (() => {
+  const imported2025 = Array.isArray(window.CFC_2025_QUESTIONS) ? window.CFC_2025_QUESTIONS : [];
+  const presentIds = new Set(data.questions.map(q => q.id));
+  data.questions.push(...imported2025.filter(q => !presentIds.has(q.id)));
+  const baseRenderStats = renderStats;
+  renderStats = function(){ baseRenderStats(); const count=document.querySelector('#question-count'); if(count) count.textContent=String(data.questions.filter(q=>q.examId).length); };
+  const baseExamCards = renderExamCards;
+  renderExamCards = function(){
+    const host=document.querySelector('#exam-cards'); if(!host)return;
+    const exams=[
+      ['2025.1-tipo1','Exame 2025.1 • Tipo 1','06/04/2025 · Gabarito definitivo FGV',2],
+      ['2025.2-tipo1','Exame 2025.2 • Tipo 1','14/09/2025 · Gabarito definitivo FGV',2],
+      ['2026.1-tipo4','Exame 2026.1 • Tipo 4','24/05/2026 · Gabarito definitivo após recursos',2],
+      ['2026.2-tipo1','Exame 2026.2 • Tipo 1','27/09/2026 · Gabarito definitivo após recursos',0]
+    ];
+    host.innerHTML=exams.map(([id,title,sub,ann])=>`<article class=\"card\"><div class=\"eyebrow\">Prova oficial · 50 questões</div><h2>${esc(title)}</h2><p>${esc(sub)}</p><p>${ann?`${ann} questões anuladas; ${50-ann} pontuáveis.`:'Sem questões anuladas no gabarito.'} Sessão de até 4 horas.</p><button class=\"btn\" data-sim-exam=\"${id}\">Começar simulado</button></article>`).join('');
+    document.querySelectorAll('[data-sim-exam]').forEach(b=>b.onclick=()=>startSimulation(b.dataset.simExam));
+  };
   const DAY = 86400000;
   const now = () => Date.now();
   const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -184,7 +201,7 @@
   reminderCheck();
 
   // Make a missed answer due tomorrow; a correct review spaces it farther out.
-  renderReview();renderSchedule();
+  renderExamCards();renderStats();renderReview();renderSchedule();
 })();
 
 
